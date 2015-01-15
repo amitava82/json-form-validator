@@ -61,7 +61,10 @@
         },
         "gender": {
             "required": true
-        }  
+        },
+        "preferences": {
+          "required": true
+        }
       }
       $('#signup').validate({rules: rules});
     })
@@ -89,6 +92,9 @@
       </select>
       <label><input type="radio" name="gender" value="M" />Male</label>
       <label><input type="radio" name="gender" value="F" />Female</label>
+      <label><input type="checkbox" name="preferences" value="Apple">Apple</label>
+      <label><input type="checkbox" name="preferences" value="Orange">Orange</label>
+      <label><input type="checkbox" name="preferences" value="Banana">Banana</label>
       <button name="submit" type="submit">Submit</button>
     </form>
   </body>

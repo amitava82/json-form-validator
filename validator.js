@@ -22,11 +22,6 @@
     trim: true
   }
 
-  var MESSAGES = {
-    number: "%s is not numeric",
-    required: "%s is required"
-  };
-
   function Field(name, el, rules, options, validator){
     var self = this;
     var stacks = [];
@@ -35,7 +30,9 @@
     this.el = el;
     this.rules = rules;
     this.errors = [];
-    
+    this.isSelect = el.is('select');
+    this.isRadio = (el.attr('type') == 'radio');
+    this.isCheckbox = (el.attr('type') == 'checkbox');
     
     this.add = function(fn){
       stacks.push(fn);
@@ -45,11 +42,22 @@
     this.run = function(){
       errors = [];
       var val;
-      if(rules.trim !== false || options.trim !== false){
-        val = trim(this.el);
+      if(self.isCheckbox || self.isRadio){
+        var vals = [];
+        el.each(function(i,e){
+          if($(e).is(':checked')){
+            vals.push($(e).val())
+          }
+        });
+        val = vals.join(',');
       }else{
-        val = el.val();
+        if(rules.trim !== false || options.trim !== false){
+          val = trim(this.el);
+        }else{
+          val = el.val();
+        }
       }
+
       stacks.forEach(function(fn){
         var r = fn(val);
         if(!r.valid){
@@ -59,12 +67,18 @@
       });
       
       validator.errors = errors;
+      var errorTarget;
+      if (el.length > 1){
+        errorTarget = $(el[el.length - 1]);
+      }else{
+        errorTarget = el;
+      }
       if(errors.length){
-        el.next('.'+options.errorClass).remove();
-        el.after(makeErrorElem(errors[0], options));
+        errorTarget.next('.'+options.errorClass).remove();
+        errorTarget.after(makeErrorElem(errors[0], options));
         return false;
       }else{
-        el.next('.'+options.errorClass).remove();
+        errorTarget.next('.'+options.errorClass).remove();
         return true;
       }
     }
@@ -75,8 +89,11 @@
         this[key].call(this);
       }
     }
-    
-    el.bind('blur', this.run.bind(this));
+    if(this.isCheckbox || this.isRadio || this.isSelect){
+      el.bind('change', this.run.bind(this));
+    }else{
+      el.bind('blur', this.run.bind(this));
+    } 
     
   }
   
@@ -92,10 +109,11 @@
     });
   }
   
-  Field.prototype.isEmail = function(){
+  Field.prototype.email = function(){
     var self = this;
+    emailEx =  /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))$/i;
     return this.add(function(value){
-      if(/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(value)){
+      if(emailEx.test(value)){
         return {valid: true}
       }else{
         var msg = self.rules.error || "%s is not a valid email";        
@@ -121,7 +139,7 @@
   Field.prototype.minLength = function(){
     var self = this;
     return this.add(function(value){
-      if(value >= self.rules.minLength){
+      if(value.length >= self.rules.minLength){
         return {valid: true}
       }else{
         var msg = self.rules.error || ("%s must be minimum " + self.rules.minLength + " characters long");        
@@ -133,7 +151,7 @@
   Field.prototype.maxLength = function(){
     var self = this;
     return this.add(function(value){
-      if(value <= self.rules.maxLength){
+      if(value.length <= self.rules.maxLength){
         return {valid: true}
       }else{
         var msg = self.rules.error || ("%s must be less than " + self.rules.minLength + " characters long");        
@@ -168,7 +186,7 @@
     function handleSubmit(){
       var errors = false;
       for(fieldName in fields){
-        var isValid = fields[fieldName].validate();
+        var isValid = fields[fieldName].run();
         if(!isValid) errors = true;
       }
       return !errors;
