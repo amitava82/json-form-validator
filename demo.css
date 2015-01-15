@@ -70,7 +70,7 @@ resize:none;
 input[type=text]:focus,textarea:focus {
 border-color: #4697e4;
 }
-.valiation-error{
+.validation-error{
   display: block;
   color: red;
   font-weight: bold;
