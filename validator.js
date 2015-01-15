@@ -32,7 +32,13 @@
     this.errors = [];
     this.isSelect = el.is('select');
     this.isRadio = (el.attr('type') == 'radio');
-    this.isCheckbox = (el.attr('type') == 'checkbox');
+    this.isCheckbox = (el.attr('type') == 'checkbox');    
+    var errorTarget;
+    if (el.length > 1){
+      errorTarget = $(el[el.length - 1]);
+    }else{
+      errorTarget = el;
+    }
     
     this.add = function(fn){
       stacks.push(fn);
@@ -57,6 +63,15 @@
           val = el.val();
         }
       }
+      
+      if(rules.filters){
+        rules.filters.forEach(function(filter){
+          if(isFunction($.fn.validate.filters[filter])){
+            val = $.fn.validate.filters[filter].call(self, val);
+          }
+        })
+        
+      }
 
       stacks.forEach(function(fn){
         var r = fn(val);
@@ -67,12 +82,7 @@
       });
       
       validator.errors = errors;
-      var errorTarget;
-      if (el.length > 1){
-        errorTarget = $(el[el.length - 1]);
-      }else{
-        errorTarget = el;
-      }
+
       if(errors.length){
         errorTarget.next('.'+options.errorClass).remove();
         errorTarget.after(makeErrorElem(errors[0], options));
@@ -205,4 +215,5 @@
     
     return this;
   }
+  $.fn.validate.filters = {};
 }(jQuery))
