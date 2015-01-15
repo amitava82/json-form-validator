@@ -38,6 +38,9 @@
     } else {
       errorTarget = el;
     }
+    if(errorTarget.parent().is('label')){
+      errorTarget = errorTarget.parent();
+    }
 
     this.add = function (fn) {
       stacks.push(fn);
@@ -94,7 +97,7 @@
 
     //Build validator stack
     for (var key in rules) {
-      if (isFunction(this[key])) {
+      if (isFunction(this[key]) && rules[key] !== false) {
         this[key].call(this);
       }
     }
@@ -192,19 +195,24 @@
     options = $.extend({}, defaults, options);
 
     //handle form submit
-    function handleSubmit() {
+    function handleSubmit(e) {
+      //e.stopImmediatePropagation();
       var errors = false;
       for (fieldName in fields) {
         var isValid = fields[fieldName].run();
         if (!isValid) errors = true;
       }
+      if(!errors){
+        this.submit();
+      }
+      self.data('valid', !errors);
       return !errors;
     }
 
 
     for (fieldName in rules) {
       var el = $("[name='" + fieldName + "']", self);
-      if (el) {
+      if (el.length) {
         fields[fieldName] = new Field(fieldName, el, rules[fieldName], options, self);
       }
     }
