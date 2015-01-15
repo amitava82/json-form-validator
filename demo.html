@@ -1,0 +1,95 @@
+<html>
+  <head>
+    <title>Demo form validation</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="validator.methods.js"></script>
+    <script src="validator.js"></script>
+    <link rel="stylesheet" href="demo.css" media="screen" title="no title" charset="utf-8">
+
+    <script type="text/javascript">
+    $(function(){
+      var rules = {
+        "confirmPassword":{
+          "equals":"field::password",
+          "error":"confirm password does not match with password",
+          "label":"password confirmation",
+          "required":true,
+          "trim":false
+        },
+        "country":{
+          "maxLength":128,
+          "required":true
+        },
+        "email":{
+          "email":true,
+          "error":"Please enter a valid email address",
+          "label":"Your E-mail",
+          "maxLength":256,
+          "required":true
+        },
+        "fname":{
+          "label":"First name",
+          "maxLength":128,
+          "required":true
+        },
+        "lname":{
+          "label":"Last name",
+          "maxLength":128,
+          "required":true
+        },
+        "password":{
+          "error":"%s must be minimum 10 characters long, consisting at least one uppercase, lowercase, number and special characters: @#$%!^&*",
+          "label":"Your password",
+          "regex":"((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%!^&*]).{10,20})",
+          "required":true,
+          "trim":false
+        },
+        "phone":{
+          "filters":[
+            "stripNonNumeric"
+          ],
+          "label":"Telephone number",
+          "maxLength":10,
+          "minLength":10,
+          "required":true
+        },
+        "zip":{
+          "label":"zip/postal code",
+          "maxLength":5,
+          "required":true,
+          "number": true
+        },
+        "gender": {
+            "required": true
+        }  
+      }
+      $('#signup').validate({rules: rules});
+    })
+    </script>
+  </head>
+  <body>
+    <form id="signup">
+      <label for="fname">First name</label>
+      <input type="text" name="fname" value="">
+      <label for="lname">Last name</label>
+      <input type="text" name="lname" value="">
+      <label for="email">Email</label>
+      <input type="text" name="email" value="">
+      <label for="password">Password</label>
+      <input type="password" name="password" value="">
+      <label for="confirmPassword">Confirm</label>
+      <input type="password" name="confirmPassword" value="">
+      <label for="phone">Phone</label>
+      <input type="text" name="phone" value="">
+      <label for="country">Country</label>
+      <select name="country">
+        <option value="">Select</option>
+        <option value="US">US</option>
+        <option value="Canada">Canada</option>
+      </select>
+      <label><input type="radio" name="gender" value="M" />Male</label>
+      <label><input type="radio" name="gender" value="F" />Female</label>
+      <button name="submit" type="submit">Submit</button>
+    </form>
+  </body>
+</html>
