@@ -1,6 +1,6 @@
 # JSON form validator
 
-Simple configuration based form validation for jQuery. Still work in progress. Feature requests & PR wellcomed. Please report any issues.
+Simple configuration based form validation for jQuery. Still work in progress. Feature requests & PR welcomed. Please report any issues.
 
 ### How?
 Create a form making sure all the fields you want to validate has name attribute. Validator rules are defined using field name of the element. Incude jquery & json-form-validator in your page and then initialize the validator on the form like so:
@@ -45,14 +45,19 @@ filters:["stripNonNumeric"] // strip non numeric characters from the value
 ####Define your own filter
 You can define your own filters after you have loaded validator script.
 ```
-$.fn.validate.filters.stripNonNumeric = function(value){
-if(value){
-return value.replace(/[^0-9]+/g, "");
-}else{
-return value;
+$.fn.validate.filters.myfilter = function(value){
+  //do stuff with the value and return result;
+  return value
 }
+```
+Then include in your rule
+```
+{
+  maxLength: 10,
+  minLength: 1,
+  filters:["stripNonNumeric", "myfilter"]
 }
-```      
+```
 ### Todo's
 - more validators
 - rules in element attribute
