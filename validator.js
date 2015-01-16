@@ -222,5 +222,14 @@
 
     return this;
   };
-  $.fn.validate.filters = {};
+  $.fn.validate.filters = {
+    stripNonNumeric: function(value){
+      if(value){
+        return value.replace(/[^0-9]+/g, "");
+      }else{
+        return value;
+      }
+    }
+  };
+  
 }(jQuery));
