@@ -18,7 +18,8 @@
 
   var defaults = {
     errorClass: 'validation-error',
-    trim: true
+    trim: true,
+    renderError: true
   };
 
   function Field(name, el, rules, options, validator) {
@@ -82,17 +83,20 @@
           errors.push(r.error.replace('%s', label));
         }
       });
+    
 
-      validator.errors = errors;
-
-      if (errors.length) {
-        errorTarget.next('.' + options.errorClass).remove();
-        errorTarget.after(makeErrorElem(errors[0], options));
-        return false;
-      } else {
-        errorTarget.next('.' + options.errorClass).remove();
-        return true;
-      }
+        if (errors.length) {
+          if(options.renderError){
+            errorTarget.next('span.' + options.errorClass).remove();
+            errorTarget.after(makeErrorElem(errors[0], options));
+          }
+          validator._errors[name] = errors;
+          return false;
+        } else {
+          errorTarget.next('span.' + options.errorClass).remove();
+          delete validator._errors[name];
+          return true;
+        }
     };
 
     //Build validator stack
@@ -185,28 +189,38 @@
     });
   };
 
-
+  
   $.fn.validate = function (config) {
     var self = this;
     var fields = [], fieldName;
     var rules = config.rules;
 
-    var options = config.options || {};
+    this._errors = {};
+    
+    self.isValid = function(){
+      return Object.keys(self._errors).length === 0;
+    }
+
+    var options = config || {};
     options = $.extend({}, defaults, options);
 
     //handle form submit
     function handleSubmit(e) {
-      //e.stopImmediatePropagation();
+      
       var errors = false;
+      //self._errors = {};
       for (fieldName in fields) {
         var isValid = fields[fieldName].run();
         if (!isValid) errors = true;
       }
-      if(!errors){
-        this.submit();
+      
+      if(typeof config.onSubmit === 'function'){
+        return !!config.onSubmit.call(self, self._errors);
+      }else{
+        return self.isValid();
       }
+
       self.data('valid', !errors);
-      return !errors;
     }
 
 

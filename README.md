@@ -21,6 +21,12 @@ $('#myform').validate({rules: rules});
 ```
 Please check demo.html for more example.
 
+###Options
+validate function takes options object, with possible keys
+`rules`: rules object we defined earlier
+`onSubmit`: `function` optional. If passed, this function will be invoked with `errors` object as first argument and context set to the form object after validation has been done. This function must return `true` to submit the form.
+`renderError`: default to `true`. If false then don't render error messages
+
 ###Supported validations:
 Example rule with all the supported validators:
 ```

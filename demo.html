@@ -22,7 +22,6 @@
         },
         "email":{
           "email":true,
-          "error":"Please enter a valid email address",
           "label":"Your E-mail",
           "maxLength":256,
           "required":true
@@ -67,11 +66,16 @@
         }
       }
       
+      var onSubmit = function(errors){
+        console.log(this);
+        
+        
+        console.log(errors)
+        return this.isValid();
+      }
       
-      $('#signup').validate({rules: rules});
-      $('#signup').submit(function(){
-        console.log('submitting');
-      })
+      $('#signup').validate({rules: rules, onSubmit: onSubmit, renderError: true});
+
     })
     </script>
   </head>
