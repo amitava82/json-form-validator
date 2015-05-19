@@ -170,7 +170,7 @@
       if (value.length <= self.rules.maxLength) {
         return {valid: true}
       } else {
-        var msg = self.rules.error || ("%s must be less than " + self.rules.minLength + " characters long");
+        var msg = self.rules.error || ("%s must be less than " + self.rules.maxLength + " characters long");
         return {error: msg}
       }
     });
